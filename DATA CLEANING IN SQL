@@ -1,0 +1,187 @@
+CREATE DATABASE IF NOT EXISTS TRAVEL_TOURIST;
+USE TRAVEL_TOURIST;
+
+CREATE TABLE domestic_visitors_2016(
+DISTRICT VARCHAR(25),
+`DATE` VARCHAR(15),
+`MONTH` VARCHAR(15),
+`YEAR` INT,
+VISITORS VARCHAR(20));
+DROP TABLE domestic_visitors_2016;
+CREATE TABLE domestic_visitors_2017(
+DISTRICT VARCHAR(25),
+`DATE` VARCHAR(15),
+`MONTH` VARCHAR(15),
+`YEAR` INT,
+VISITORS VARCHAR(20));
+CREATE TABLE domestic_visitors_2018(
+DISTRICT VARCHAR(25),
+`DATE` VARCHAR(15),
+`MONTH` VARCHAR(15),
+`YEAR` INT,
+VISITORS VARCHAR(20));
+CREATE TABLE domestic_visitors_2019(
+DISTRICT VARCHAR(25),
+`DATE` VARCHAR(15),
+`MONTH` VARCHAR(15),
+`YEAR` INT,
+VISITORS VARCHAR(20));
+CREATE TABLE foreign_visitors_2016(
+DISTRICT VARCHAR(25),
+`DATE` VARCHAR(15),
+`MONTH` VARCHAR(15),
+`YEAR` INT,
+VISITORS VARCHAR(20));
+CREATE TABLE foreign_visitors_2017(
+DISTRICT VARCHAR(25),
+`DATE` VARCHAR(15),
+`MONTH` VARCHAR(15),
+`YEAR` INT,
+VISITORS VARCHAR(20));
+CREATE TABLE foreign_visitors_2018(
+DISTRICT VARCHAR(25),
+`DATE` VARCHAR(15),
+`MONTH` VARCHAR(15),
+`YEAR` INT,
+VISITORS VARCHAR(20));
+CREATE TABLE foreign_visitors_2019(
+DISTRICT VARCHAR(25),
+`DATE` VARCHAR(15),
+`MONTH` VARCHAR(15),
+`YEAR` INT,
+VISITORS VARCHAR(20));
+
+LOAD DATA INFILE 'G:\domestic_visitors_2016.CSV'
+INTO TABLE domestic_visitors_2016
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA INFILE 'G:\domestic_visitors_2017.CSV'
+INTO TABLE domestic_visitors_2017
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA INFILE 'G:\domestic_visitors_2018.CSV'
+INTO TABLE domestic_visitors_2018
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA INFILE 'G:\domestic_visitors_2019.CSV'
+INTO TABLE domestic_visitors_2019
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA INFILE 'G:\foreign_visitors_2016.CSV'
+INTO TABLE foreign_visitors_2016
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA INFILE 'G:\foreign_visitors_2017.CSV'
+INTO TABLE foreign_visitors_2017
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA INFILE 'G:\foreign_visitors_2018.CSV'
+INTO TABLE foreign_visitors_2018
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA INFILE 'G:\foreign_visitors_2019.CSV'
+INTO TABLE foreign_visitors_2019
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+select * from domestic_visitors_2016;
+select * from domestic_visitors_2017;
+select * from domestic_visitors_2018;
+select * from domestic_visitors_2019;
+
+select * from foreign_visitors_2016;
+select * from foreign_visitors_2017;
+select * from foreign_visitors_2018;
+select * from foreign_visitors_2019;
+
+
+-- DATA CLEANING IN SQL
+ALTER TABLE domestic_visitors_2016 MODIFY COLUMN VISITORS VARCHAR(20);
+UPDATE domestic_visitors_2016 SET VISITORS = CASE WHEN VISITORS = 0 THEN 0 ELSE VISITORS END;
+
+ALTER TABLE domestic_visitors_2016 MODIFY COLUMN `DATE` VARCHAR(15);
+UPDATE domestic_visitors_2016 SET `DATE` = str_to_date(DATE,'%d-%m-%Y');
+
+ALTER TABLE domestic_visitors_2017 MODIFY COLUMN VISITORS VARCHAR(20);
+UPDATE domestic_visitors_2017 SET VISITORS = CASE WHEN VISITORS = 0 THEN 0 ELSE VISITORS END;
+
+ALTER TABLE domestic_visitors_2017 MODIFY COLUMN `DATE` VARCHAR(15);
+UPDATE domestic_visitors_2017 SET `DATE` = str_to_date(DATE,'%d-%m-%Y');
+
+ALTER TABLE domestic_visitors_2018 MODIFY COLUMN VISITORS VARCHAR(20);
+UPDATE domestic_visitors_2018 SET VISITORS = CASE WHEN VISITORS = 0 THEN 0 ELSE VISITORS END;
+
+ALTER TABLE domestic_visitors_2018 MODIFY COLUMN `DATE` VARCHAR(15);
+UPDATE domestic_visitors_2018 SET `DATE` = str_to_date(DATE,'%d-%m-%Y');
+
+ALTER TABLE domestic_visitors_2019 MODIFY COLUMN VISITORS VARCHAR(20);
+UPDATE domestic_visitors_2019 SET VISITORS = CASE WHEN VISITORS = 0 THEN 0 ELSE VISITORS END;
+
+ALTER TABLE domestic_visitors_2019 MODIFY COLUMN `DATE` VARCHAR(15);
+UPDATE domestic_visitors_2019 SET `DATE` = str_to_date(DATE,'%d-%m-%Y');
+
+
+ALTER TABLE foreign_visitors_2016 MODIFY COLUMN VISITORS VARCHAR(20);
+UPDATE foreign_visitors_2016 SET VISITORS = CASE WHEN VISITORS = 0 THEN 0 ELSE VISITORS END;
+
+ALTER TABLE foreign_visitors_2016 MODIFY COLUMN `DATE` VARCHAR(15);
+UPDATE foreign_visitors_2016 SET `DATE` = str_to_date(DATE,'%d-%m-%Y');
+
+ALTER TABLE foreign_visitors_2017 MODIFY COLUMN VISITORS VARCHAR(20);
+UPDATE foreign_visitors_2017 SET VISITORS = CASE WHEN VISITORS = 0 THEN 0 ELSE VISITORS END;
+
+ALTER TABLE foreign_visitors_2017 MODIFY COLUMN `DATE` VARCHAR(15);
+UPDATE foreign_visitors_2017 SET `DATE` = str_to_date(DATE,'%d-%m-%Y');
+
+ALTER TABLE foreign_visitors_2018 MODIFY COLUMN VISITORS VARCHAR(20);
+UPDATE foreign_visitors_2018 SET VISITORS = CASE WHEN VISITORS = 0 THEN 0 ELSE VISITORS END;
+
+ALTER TABLE foreign_visitors_2018 MODIFY COLUMN `DATE` VARCHAR(15);
+UPDATE foreign_visitors_2018 SET `DATE` = str_to_date(DATE,'%d-%m-%Y');
+
+ALTER TABLE foreign_visitors_2019 MODIFY COLUMN VISITORS VARCHAR(20);
+UPDATE foreign_visitors_2019 SET VISITORS = CASE WHEN VISITORS = 0 THEN 0 ELSE VISITORS END;
+
+ALTER TABLE foreign_visitors_2019 MODIFY COLUMN `DATE` VARCHAR(15);
+UPDATE foreign_visitors_2019 SET `DATE` = str_to_date(DATE,'%d-%m-%Y');
+
+CREATE TABLE domestic_visitors AS (
+select * from domestic_visitors_2016
+UNION
+select * from domestic_visitors_2017
+UNION
+select * from domestic_visitors_2018
+UNION
+select * from domestic_visitors_2019);
+
+CREATE TABLE foreign_visitors AS (
+select * from foreign_visitors_2016
+UNION
+select * from foreign_visitors_2017
+UNION
+select * from foreign_visitors_2018
+UNION
+select * from foreign_visitors_2019);
