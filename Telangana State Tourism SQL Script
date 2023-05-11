@@ -1,0 +1,215 @@
+CREATE DATABASE IF NOT EXISTS TRAVEL_TOURIST;
+USE TRAVEL_TOURIST;
+
+ALTER TABLE domestic_visitors ADD INDEX(DISTRICT);
+ALTER TABLE foreign_visitors ADD INDEX(DISTRICT);
+
+select * from domestic_visitors;                          
+select * from foreign_visitors;
+select * from population_telangna;
+select * from VISITORS_TELANGNA;
+
+SET SQL_SAFE_UPDATES=0;
+
+CREATE TABLE VISITORS_TELANGNA AS (
+select D.district,D.`date`,D.`month`,D.`year`,D.visitors as domestic_visitors,F.visitors as foreign_visitors
+from domestic_visitors D
+LEFT JOIN foreign_visitors F on D.district=F.district and D.`month`=F.`month` and D.`year`=F.`year`);
+
+-- Q1. Top 10 districts having highest number of visitors
+select district,sum(domestic_visitors) as domestic_visitors           ## DOMESTIC VISITORS ## 
+from VISITORS_TELANGNA
+group by 1
+order by domestic_visitors desc limit 10;
+
+select district,sum(foreign_visitors) as foreign_visitors             ## FOREIGN VISITORS ##
+from VISITORS_TELANGNA
+group by 1
+order by foreign_visitors desc limit 10;
+
+-- Q2. Top 3 districts based on compounded annual growth rate of visitors
+with cte as(
+Select district,
+sum(case when year = 2016 Then domestic_visitors else 0 End) as total_domestic_visitors_in_2016,   -- all the visitors from 2016 district wise
+sum(case when year = 2019 Then domestic_visitors else 0 End) as total_domestic_visitors_in_2019	 -- all the visitors from 2019 district wise
+from VISITORS_TELANGNA
+group by district)
+select district,total_domestic_visitors_in_2016,total_domestic_visitors_in_2019,
+round((power((total_domestic_visitors_in_2019/total_domestic_visitors_in_2016),1/3)-1)*100,2) as CAGR         -- CAGR = [POWER((FINAL/INITIAL),1/DURATION)-1]
+from cte
+order by CAGR desc limit 5;
+
+with cte as(
+Select district,
+sum(case when year = 2016 Then foreign_visitors else 0 End) as total_foreign_visitors_in_2016,   -- all the visitors from 2016 district wise
+sum(case when year = 2019 Then foreign_visitors else 0 End) as total_foreign_visitors_in_2019	 -- all the visitors from 2019 district wise
+from VISITORS_TELANGNA
+group by district)
+select district,total_foreign_visitors_in_2016,total_foreign_visitors_in_2019,
+round((power((total_foreign_visitors_in_2019/total_foreign_visitors_in_2016),1/3)-1)*100,2) as CAGR         -- CAGR = [POWER((FINAL/INITIAL),1/DURATION)-1]
+from cte
+order by CAGR desc limit 5;
+
+-- Q3. Bottom 3 districts based on compounded annual growth rate of visitors
+with cte as(
+Select district,
+sum(case when year = 2016 Then domestic_visitors else 0 End) as total_domestic_visitors_in_2016,   -- all the visitors from 2016 district wise
+sum(case when year = 2019 Then domestic_visitors else 0 End) as total_domestic_visitors_in_2019	 -- all the visitors from 2019 district wise
+from VISITORS_TELANGNA
+group by district),
+cte_1 as(
+select district,total_domestic_visitors_in_2016,total_domestic_visitors_in_2019,
+round((power((total_domestic_visitors_in_2019/total_domestic_visitors_in_2016),1/3)-1)*100,2) as CAGR
+from cte)
+select * from cte_1
+where CAGR is not null
+order by CAGR limit 3;
+
+with cte as(
+Select district,
+sum(case when year = 2016 Then foreign_visitors else 0 End) as total_foreign_visitors_in_2016,   -- all the visitors from 2016 district wise
+sum(case when year = 2019 Then foreign_visitors else 0 End) as total_foreign_visitors_in_2019	 -- all the visitors from 2019 district wise
+from VISITORS_TELANGNA
+group by district),
+cte_1 as(
+select district,total_foreign_visitors_in_2016,total_foreign_visitors_in_2019,
+round((power((total_foreign_visitors_in_2019/total_foreign_visitors_in_2016),1/3)-1)*100,2) as CAGR
+from cte)
+select * from cte_1
+where CAGR is not null
+order by CAGR limit 3;
+
+-- Q4. Peak and low season months for Hyderabad district
+select month as peak_season_months ,sum(domestic_visitors) as domestic_visitors
+from VISITORS_TELANGNA
+where district = 'hyderabad'
+group by month
+order by domestic_visitors desc limit 3;
+
+select month as low_season_months ,sum(domestic_visitors) as domestic_visitors
+from VISITORS_TELANGNA
+where district = 'hyderabad'
+group by month
+order by domestic_visitors  limit 3;
+
+select month as peak_season_months ,sum(foreign_visitors) as foreign_visitors
+from VISITORS_TELANGNA
+where district = 'hyderabad'
+group by month
+order by foreign_visitors desc limit 3;
+
+select month as low_season_months ,sum(foreign_visitors) as foreign_visitors
+from VISITORS_TELANGNA
+where district = 'hyderabad'
+group by month
+order by foreign_visitors  limit 3;
+
+-- Q5. Top 3 and bottom 3 districts with high domestic to foreign tourist ratio
+select district,(SUM(domestic_visitors)/SUM(foreign_visitors))as domestic_to_foreign_tourist_ratio
+from VISITORS_TELANGNA
+group by DISTRICT
+order by domestic_to_foreign_tourist_ratio desc LIMIT 3;
+
+select district,(SUM(domestic_visitors)/SUM(foreign_visitors))as domestic_to_foreign_tourist_ratio
+from VISITORS_TELANGNA
+group by district
+HAVING domestic_to_foreign_tourist_ratio IS NOT NULL
+order by domestic_to_foreign_tourist_ratio LIMIT 3;
+
+-- Q6.
+# The data is taken from https://www.indiacensus.net/states/telangana
+# 2023_population - 2011_population = popuation_increase = 38,157,311 - 35,193,978 = 2,963,333
+# [(popuation_increase / 2011_population) / (2023 - 2011)]*100 =  yearly_growth_rate = 0.7060086311923529
+# [(2011 population) * 0.7060086311923529]/100 = yearly_growth = 248,472
+# 2019_population = 35,193,978 + 8*(yearly growth) = 35286757 + 2258352 = 37,181,754
+# 2025_population = 35,193,978 + 14*(yearly growth) = 35286757 + 2258352 = 38,672,586
+
+create table population_telangna(
+district varchar(30),
+Population_As_per_2011_census int,
+Estimated_Population_in_2023 int);
+
+set session sql_mode = '';
+load data infile 'G:\population_telangna.csv'
+into table population_telangna
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n'
+ignore 1 rows;
+
+alter table population_telangna add column Estimated_Population_in_2019 int;
+update population_telangna set Estimated_Population_in_2019=((((Estimated_Population_in_2023-Population_As_per_2011_census)/(Population_As_per_2011_census*(2023 - 2011)))*(Population_As_per_2011_census)*8)+Population_As_per_2011_census);
+
+alter table population_telangna add column Estimated_Population_in_2025 int;
+update population_telangna set Estimated_Population_in_2025=((((Estimated_Population_in_2023-Population_As_per_2011_census)/(Population_As_per_2011_census*(2023 - 2011)))*(Population_As_per_2011_census)*14)+Population_As_per_2011_census);
+
+select * from population_telangna;
+
+with cte as(
+select P.district,p.Estimated_Population_in_2019,D.total_visitors
+from 
+(select district,sum(case when year=2019 then domestic_visitors end) as total_visitors 
+from VISITORS_TELANGNA group by district) D
+join population_telangna P on D.district=P.district)
+select district,(total_visitors/Estimated_Population_in_2019) as footfall_ratio_2019
+from cte
+order by (total_visitors/Estimated_Population_in_2019) desc limit 5;
+
+with cte as(
+select P.district,p.Estimated_Population_in_2019,D.total_visitors
+from 
+(select district,sum(case when year=2019 then domestic_visitors end) as total_visitors 
+from VISITORS_TELANGNA group by district) D
+join population_telangna P on D.district=P.district)
+select district,(total_visitors/Estimated_Population_in_2019) as footfall_ratio_2019
+from cte
+order by (total_visitors/Estimated_Population_in_2019) limit 5;
+
+with cte as(
+select P.district,p.Estimated_Population_in_2019,D.total_visitors
+from 
+(select district,sum(case when year=2019 then foreign_visitors end) as total_visitors 
+from VISITORS_TELANGNA group by district) D
+join population_telangna P on D.district=P.district)
+select district,(total_visitors/Estimated_Population_in_2019) as footfall_ratio_2019
+from cte
+order by (total_visitors/Estimated_Population_in_2019) desc limit 5;
+
+with cte as(
+select P.district,p.Estimated_Population_in_2019,D.total_visitors
+from 
+(select district,sum(case when year=2019 then foreign_visitors end) as total_visitors 
+from VISITORS_TELANGNA group by district) D
+join population_telangna P on D.district=P.district)
+select district,(total_visitors/Estimated_Population_in_2019) as footfall_ratio_2019
+from cte
+order by (total_visitors/Estimated_Population_in_2019) limit 5;
+
+-- Q7. 
+with cte as(
+Select district,
+sum(case when year = 2016 Then domestic_visitors else 0 End) as domestic_visitors_2016 ,  #all the visitors from 2016 district wise
+sum(case when year = 2019 Then domestic_visitors else 0 End) as domestic_visitors_2019	#all the visitors from 2019 district wise
+from VISITORS_TELANGNA
+group by district 
+having district ="Hyderabad"),
+cte_1 as(
+select *,(power((domestic_visitors_2019/domestic_visitors_2016),(1/3))-1) as AGR from cte )  
+select *,(domestic_visitors_2019*power((1+AGR),6)) as domestic_visitors_2025,
+1200*(domestic_visitors_2019*power((1+AGR),6)) as revenue_domestic_visitors_2025 from cte_1;
+
+
+with cte as(
+Select district,
+sum(case when year = 2016 Then foreign_visitors else 0 End) as foreign_visitors_2016 ,  #all the visitors from 2016 district wise
+sum(case when year = 2019 Then foreign_visitors else 0 End) as foreign_visitors_2019	#all the visitors from 2019 district wise
+from VISITORS_TELANGNA
+group by district 
+having district ="Hyderabad"),
+cte_1 as(
+select *,(power((foreign_visitors_2019/foreign_visitors_2016),(1/3))-1) as AGR from cte ) 
+select *,(foreign_visitors_2019*power((1+AGR),6)) as foreign_visitors_2025,
+5600*(foreign_visitors_2019*power((1+AGR),6)) as revenue_foreign_visitors_2025 from cte_1;
+
+
+
